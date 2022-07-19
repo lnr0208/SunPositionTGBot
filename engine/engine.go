@@ -8,7 +8,7 @@ import (
 )
 
 /* type Date struct {
-	day,
+	day,a
 	month,
 	year int
 }
@@ -33,7 +33,7 @@ type Coordinates struct {
 /* func GetDate(d string) (Date, error) {
 
 }
- */
+*/
 func GetCoordinates(s string) (Coordinates, error) {
 	c := strings.Split(s, " ")
 	lat := c[0]
