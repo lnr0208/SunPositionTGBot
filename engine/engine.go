@@ -8,7 +8,7 @@ import (
 )
 
 /* type Date struct {
-	day,a
+	day,
 	month,
 	year int
 }
