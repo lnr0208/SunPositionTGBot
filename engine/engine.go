@@ -2,6 +2,7 @@ package engine
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"regexp"
 	"strconv"
@@ -27,7 +28,7 @@ type Coordinates struct {
 	Latitude, Longitude float64
 }
 
-func GetSunPosition(_coordinates, _date, _time string, gmt float64) (SunPosition, error) {
+func GetSunPosition(_lat, _lon float64, _date, _time, _gmt string) (SunPosition, error) {
 	date, err := GetDate(_date)
 	if err != nil {
 		return SunPosition{}, err
@@ -36,10 +37,15 @@ func GetSunPosition(_coordinates, _date, _time string, gmt float64) (SunPosition
 	if err != nil {
 		return SunPosition{}, err
 	}
-	coordinates, err := GetCoordinates(_coordinates)
+	gmt, err := GetGMT(_gmt)
 	if err != nil {
 		return SunPosition{}, err
 	}
+	/* coordinates, err := GetCoordinates(_coordinates)
+	if err != nil {
+		return SunPosition{}, err
+	} */
+	coordinates := Coordinates{_lat, _lon}
 	day := date.Day
 	month := date.Month
 	year := date.Year
@@ -47,6 +53,7 @@ func GetSunPosition(_coordinates, _date, _time string, gmt float64) (SunPosition
 	minute := time.Minutes
 	LAT := coordinates.Latitude
 	LON := coordinates.Longitude
+	fmt.Print("\n",LAT, LON, day, month, year, hour, minute, gmt, "\n\n")
 
 	ut := float64(hour) + float64(minute)/60.0 - gmt
 	d := float64(367*year - (7*(year+((month+9)/12)))/4 + (275*month)/9 + day - 730530)     //преобразование даты в нужное числовое значение
@@ -83,6 +90,16 @@ func GetSunPosition(_coordinates, _date, _time string, gmt float64) (SunPosition
 	azimuth := toDegrees(math.Atan2(yhor, xhor)) + 180
 	altitude := toDegrees(math.Asin(zhor))
 	return SunPosition{azimuth, altitude}, nil
+}
+
+func GetGMT(_gmt string) (float64, error) {
+	err := errors.New("wrong gmt")
+	matched, _ := regexp.MatchString(`^^(\+|-){0,1}\d{1,}\.{0,1}\d{0,}$`, _gmt)
+	if !matched {
+		return 0, err
+	}
+	res, _ := strconv.ParseFloat(_gmt, 64)
+	return res, nil
 }
 
 func GetDate(_date string) (Date, error) {
